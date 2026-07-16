@@ -18,44 +18,6 @@
 </Project>
 
 
-using System;
-using System.Collections.Generic;
-
-public class TakingTurnsQueue
-{
-    private Queue<(string Name, int Turns)> queue = new Queue<(string, int)>();
-
-    // AddPerson: enqueue with turns
-    public void AddPerson(string name, int turns)
-    {
-        queue.Enqueue((name, turns));
-    }
-
-    // GetNextPerson: dequeue and handle re-enqueue logic
-    public string GetNextPerson()
-    {
-        if (queue.Count == 0)
-            throw new InvalidOperationException("The queue is empty.");
-
-        var person = queue.Dequeue();
-        string name = person.Name;
-        int turns = person.Turns;
-
-        // If infinite turns (<= 0), re-enqueue directly
-        if (turns <= 0)
-        {
-            queue.Enqueue((name, turns));
-        }
-        // If finite turns, decrement and re-enqueue if still > 0
-        else if (turns > 1)
-        {
-            queue.Enqueue((name, turns - 1));
-        }
-
-        return name;
-    }
-}
-
 
 
 
