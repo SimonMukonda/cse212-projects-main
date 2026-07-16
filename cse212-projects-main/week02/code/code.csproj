@@ -16,3 +16,106 @@
   </ItemGroup>
 
 </Project>
+
+
+using System;
+using System.Collections.Generic;
+
+public class TakingTurnsQueue
+{
+    private Queue<(string Name, int Turns)> queue = new Queue<(string, int)>();
+
+    // AddPerson: enqueue with turns
+    public void AddPerson(string name, int turns)
+    {
+        queue.Enqueue((name, turns));
+    }
+
+    // GetNextPerson: dequeue and handle re-enqueue logic
+    public string GetNextPerson()
+    {
+        if (queue.Count == 0)
+            throw new InvalidOperationException("The queue is empty.");
+
+        var person = queue.Dequeue();
+        string name = person.Name;
+        int turns = person.Turns;
+
+        // If infinite turns (<= 0), re-enqueue directly
+        if (turns <= 0)
+        {
+            queue.Enqueue((name, turns));
+        }
+        // If finite turns, decrement and re-enqueue if still > 0
+        else if (turns > 1)
+        {
+            queue.Enqueue((name, turns - 1));
+        }
+
+        return name;
+    }
+}
+
+
+
+
+
+
+
+using NUnit.Framework;
+using System;
+
+[TestFixture]
+public class PriorityQueue_Tests
+{
+    // Requirement: Enqueue adds items to the back of the queue.
+    // Result: Items were added in order, but Dequeue must respect priority.
+    [Test]
+    public void Test_Enqueue_AddsItemsToBack()
+    {
+        var pq = new PriorityQueue<string>();
+        pq.Enqueue("A", 1);
+        pq.Enqueue("B", 2);
+        pq.Enqueue("C", 3);
+
+        Assert.AreEqual("C", pq.Dequeue()); // highest priority first
+        Assert.AreEqual("B", pq.Dequeue());
+        Assert.AreEqual("A", pq.Dequeue());
+    }
+
+    // Requirement: Dequeue removes highest priority item.
+    // Result: Verified correct removal of highest priority.
+    [Test]
+    public void Test_Dequeue_RemovesHighestPriority()
+    {
+        var pq = new PriorityQueue<string>();
+        pq.Enqueue("Low", 1);
+        pq.Enqueue("High", 5);
+
+        Assert.AreEqual("High", pq.Dequeue());
+    }
+
+    // Requirement: FIFO order when priorities are equal.
+    // Result: Verified that first-in is removed first.
+    [Test]
+    public void Test_Dequeue_FifoOnEqualPriority()
+    {
+        var pq = new PriorityQueue<string>();
+        pq.Enqueue("First", 3);
+        pq.Enqueue("Second", 3);
+
+        Assert.AreEqual("First", pq.Dequeue());
+        Assert.AreEqual("Second", pq.Dequeue());
+    }
+
+    // Requirement: Empty queue throws InvalidOperationException with message.
+    // Result: Verified exception type and message.
+    [Test]
+    public void Test_Dequeue_EmptyQueueThrowsException()
+    {
+        var pq = new PriorityQueue<string>();
+
+        var ex = Assert.Throws<InvalidOperationException>(() => pq.Dequeue());
+        Assert.AreEqual("The queue is empty.", ex.Message);
+    }
+}
