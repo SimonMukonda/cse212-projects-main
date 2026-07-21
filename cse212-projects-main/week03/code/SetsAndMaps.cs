@@ -104,3 +104,166 @@ public static class SetsAndMaps
         return [];
     }
 }
+
+
+
+//public static string[] FindPairs(string[] words)
+{
+    var set = new HashSet<string>(words);
+    var result = new List<string>();
+
+    foreach (var word in words)
+    {
+        // Skip words like "aa"
+        if (word[0] == word[1]) continue;
+
+        // Reverse the word
+        var reversed = new string(new[] { word[1], word[0] });
+
+        // Check if reversed exists
+        if (set.Contains(reversed))
+        {
+            result.Add($"{word} & {reversed}");
+            // Remove both to avoid duplicate pairs
+            set.Remove(word);
+            set.Remove(reversed);
+        }
+    }
+
+    return result.ToArray();
+}
+
+
+
+public static string[] FindPairs(string[] words)
+{
+    var set = new HashSet<string>(words);
+    var result = new List<string>();
+
+    foreach (var word in words)
+    {
+        // Skip words like "aa"
+        if (word[0] == word[1]) continue;
+
+        // Reverse the word
+        var reversed = new string(new[] { word[1], word[0] });
+
+        // Check if reversed exists
+        if (set.Contains(reversed))
+        {
+            result.Add($"{word} & {reversed}");
+            // Remove both to avoid duplicate pairs
+            set.Remove(word);
+            set.Remove(reversed);
+        }
+    }
+
+    return result.ToArray();
+}
+
+
+
+
+
+
+
+
+
+
+
+public static Dictionary<string, int> SummarizeDegrees(string filename)
+{
+    var degrees = new Dictionary<string, int>();
+    foreach (var line in File.ReadLines(filename))
+    {
+        var fields = line.Split(",");
+        var degree = fields[3].Trim();
+        if (degrees.ContainsKey(degree))
+            degrees[degree]++;
+        else
+            degrees[degree] = 1;
+    }
+    return degrees;
+}
+
+
+
+
+
+
+public static bool IsAnagram(string word1, string word2)
+{
+    string w1 = new string(word1.ToLower().Where(c => c != ' ').ToArray());
+    string w2 = new string(word2.ToLower().Where(c => c != ' ').ToArray());
+
+    if (w1.Length != w2.Length) return false;
+
+    var counts = new Dictionary<char, int>();
+    foreach (var c in w1)
+    {
+        if (!counts.ContainsKey(c)) counts[c] = 0;
+        counts[c]++;
+    }
+
+    foreach (var c in w2)
+    {
+        if (!counts.ContainsKey(c)) return false;
+        counts[c]--;
+        if (counts[c] < 0) return false;
+    }
+
+    return counts.Values.All(v => v == 0);
+}
+
+
+
+
+
+
+
+public (int x, int y) Position { get; private set; } = (1,1);
+
+public void MoveLeft(Dictionary<(int,int), (bool left, bool right, bool up, bool down)> maze)
+{
+    var moves = maze[Position];
+    if (moves.left) Position = (Position.x - 1, Position.y);
+}
+
+public void MoveRight(Dictionary<(int,int), (bool left, bool right, bool up, bool down)> maze)
+{
+    var moves = maze[Position];
+    if (moves.right) Position = (Position.x + 1, Position.y);
+}
+
+public void MoveUp(Dictionary<(int,int), (bool left, bool right, bool up, bool down)> maze)
+{
+    var moves = maze[Position];
+    if (moves.up) Position = (Position.x, Position.y - 1);
+}
+
+public void MoveDown(Dictionary<(int,int), (bool left, bool right, bool up, bool down)> maze)
+{
+    var moves = maze[Position];
+    if (moves.down) Position = (Position.x, Position.y + 1);
+}
+
+
+
+
+
+public class FeatureCollection
+{
+    public List<Feature> Features { get; set; }
+}
+
+public class Feature
+{
+    public Properties Properties { get; set; }
+}
+
+public class Properties
+{
+    public string Place { get; set; }
+    public double? Mag { get; set; }
+}
+
