@@ -267,3 +267,93 @@ public class Properties
     public double? Mag { get; set; }
 }
 
+
+
+public void InsertTail(int value)
+{
+    var newNode = new Node { Value = value };
+
+    if (head == null)
+    {
+        head = newNode;
+        return;
+    }
+
+    var current = head;
+    while (current.Next != null)
+    {
+        current = current.Next;
+    }
+    current.Next = newNode;
+}
+
+
+
+
+
+
+public void RemoveTail()
+{
+    if (head == null) return;
+
+    if (head.Next == null)
+    {
+        head = null;
+        return;
+    }
+
+    var current = head;
+    while (current.Next.Next != null)
+    {
+        current = current.Next;
+    }
+    current.Next = null;
+}
+
+
+
+
+
+public void Remove(int value)
+{
+    if (head == null) return;
+
+    if (head.Value == value)
+    {
+        head = head.Next;
+        return;
+    }
+
+    var current = head;
+    while (current.Next != null)
+    {
+        if (current.Next.Value == value)
+        {
+            current.Next = current.Next.Next;
+            return;
+        }
+        current = current.Next;
+    }
+}
+
+
+
+
+
+
+
+
+public void Replace(int oldValue, int newValue)
+{
+    var current = head;
+    while (current != null)
+    {
+        if (current.Value == oldValue)
+        {
+            current.Value = newValue;
+        }
+        current = current.Next;
+    }
+}
+
+
