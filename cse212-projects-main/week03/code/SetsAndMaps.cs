@@ -1,4 +1,7 @@
 using System.Text.Json;
+using System.IO;
+using System.Net.Http;
+using System.Collections.Generic;
 
 public static class SetsAndMaps
 {
@@ -21,8 +24,21 @@ public static class SetsAndMaps
     /// <param name="words">An array of 2-character words (lowercase, no duplicates)</param>
     public static string[] FindPairs(string[] words)
     {
-        // TODO Problem 1 - ADD YOUR CODE HERE
-        return [];
+        var set = new HashSet<string>(words);
+        var results = new List<string>();
+
+        foreach (var word in words)
+        {
+            if (word[0] == word[1]) continue; // skip same letters like "aa"
+            var reversed = new string(new[] { word[1], word[0] });
+            if (set.Contains(reversed))
+            {
+                results.Add($"{word} & {reversed}");
+                set.Remove(word);
+                set.Remove(reversed);
+            }
+        }
+        return results.ToArray();
     }
 
     /// <summary>
@@ -42,9 +58,15 @@ public static class SetsAndMaps
         foreach (var line in File.ReadLines(filename))
         {
             var fields = line.Split(",");
-            // TODO Problem 2 - ADD YOUR CODE HERE
+            if (fields.Length >= 4)
+            {
+                var degree = fields[3].Trim();
+                if (degrees.ContainsKey(degree))
+                    degrees[degree]++;
+                else
+                    degrees[degree] = 1;
+            }
         }
-
         return degrees;
     }
 
@@ -66,8 +88,26 @@ public static class SetsAndMaps
     /// </summary>
     public static bool IsAnagram(string word1, string word2)
     {
-        // TODO Problem 3 - ADD YOUR CODE HERE
-        return false;
+        string clean1 = word1.Replace(" ", "").ToLower();
+        string clean2 = word2.Replace(" ", "").ToLower();
+
+        if (clean1.Length != clean2.Length) return false;
+
+        var dict = new Dictionary<char, int>();
+        foreach (var c in clean1)
+        {
+            if (dict.ContainsKey(c)) dict[c]++;
+            else dict[c] = 1;
+        }
+
+        foreach (var c in clean2)
+        {
+            if (!dict.ContainsKey(c)) return false;
+            dict[c]--;
+            if (dict[c] < 0) return false;
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -96,161 +136,23 @@ public static class SetsAndMaps
 
         var featureCollection = JsonSerializer.Deserialize<FeatureCollection>(json, options);
 
-        // TODO Problem 5:
-        // 1. Add code in FeatureCollection.cs to describe the JSON using classes and properties 
-        // on those classes so that the call to Deserialize above works properly.
-        // 2. Add code below to create a string out each place a earthquake has happened today and its magitude.
-        // 3. Return an array of these string descriptions.
-        return [];
-    }
-}
-
-
-
-//public static string[] FindPairs(string[] words)
-{
-    var set = new HashSet<string>(words);
-    var result = new List<string>();
-
-    foreach (var word in words)
-    {
-        // Skip words like "aa"
-        if (word[0] == word[1]) continue;
-
-        // Reverse the word
-        var reversed = new string(new[] { word[1], word[0] });
-
-        // Check if reversed exists
-        if (set.Contains(reversed))
+        var results = new List<string>();
+        if (featureCollection?.Features != null)
         {
-            result.Add($"{word} & {reversed}");
-            // Remove both to avoid duplicate pairs
-            set.Remove(word);
-            set.Remove(reversed);
+            foreach (var feature in featureCollection.Features)
+            {
+                var place = feature.Properties.Place;
+                var mag = feature.Properties.Mag;
+                results.Add($"{place} - Magnitude {mag}");
+            }
         }
+        return results.ToArray();
     }
-
-    return result.ToArray();
 }
 
-
-
-public static string[] FindPairs(string[] words)
-{
-    var set = new HashSet<string>(words);
-    var result = new List<string>();
-
-    foreach (var word in words)
-    {
-        // Skip words like "aa"
-        if (word[0] == word[1]) continue;
-
-        // Reverse the word
-        var reversed = new string(new[] { word[1], word[0] });
-
-        // Check if reversed exists
-        if (set.Contains(reversed))
-        {
-            result.Add($"{word} & {reversed}");
-            // Remove both to avoid duplicate pairs
-            set.Remove(word);
-            set.Remove(reversed);
-        }
-    }
-
-    return result.ToArray();
-}
-
-
-
-
-
-
-
-
-
-
-
-public static Dictionary<string, int> SummarizeDegrees(string filename)
-{
-    var degrees = new Dictionary<string, int>();
-    foreach (var line in File.ReadLines(filename))
-    {
-        var fields = line.Split(",");
-        var degree = fields[3].Trim();
-        if (degrees.ContainsKey(degree))
-            degrees[degree]++;
-        else
-            degrees[degree] = 1;
-    }
-    return degrees;
-}
-
-
-
-
-
-
-public static bool IsAnagram(string word1, string word2)
-{
-    string w1 = new string(word1.ToLower().Where(c => c != ' ').ToArray());
-    string w2 = new string(word2.ToLower().Where(c => c != ' ').ToArray());
-
-    if (w1.Length != w2.Length) return false;
-
-    var counts = new Dictionary<char, int>();
-    foreach (var c in w1)
-    {
-        if (!counts.ContainsKey(c)) counts[c] = 0;
-        counts[c]++;
-    }
-
-    foreach (var c in w2)
-    {
-        if (!counts.ContainsKey(c)) return false;
-        counts[c]--;
-        if (counts[c] < 0) return false;
-    }
-
-    return counts.Values.All(v => v == 0);
-}
-
-
-
-
-
-
-
-public (int x, int y) Position { get; private set; } = (1,1);
-
-public void MoveLeft(Dictionary<(int,int), (bool left, bool right, bool up, bool down)> maze)
-{
-    var moves = maze[Position];
-    if (moves.left) Position = (Position.x - 1, Position.y);
-}
-
-public void MoveRight(Dictionary<(int,int), (bool left, bool right, bool up, bool down)> maze)
-{
-    var moves = maze[Position];
-    if (moves.right) Position = (Position.x + 1, Position.y);
-}
-
-public void MoveUp(Dictionary<(int,int), (bool left, bool right, bool up, bool down)> maze)
-{
-    var moves = maze[Position];
-    if (moves.up) Position = (Position.x, Position.y - 1);
-}
-
-public void MoveDown(Dictionary<(int,int), (bool left, bool right, bool up, bool down)> maze)
-{
-    var moves = maze[Position];
-    if (moves.down) Position = (Position.x, Position.y + 1);
-}
-
-
-
-
-
+/// <summary>
+/// Classes to represent the USGS JSON structure
+/// </summary>
 public class FeatureCollection
 {
     public List<Feature> Features { get; set; }
@@ -265,95 +167,6 @@ public class Properties
 {
     public string Place { get; set; }
     public double? Mag { get; set; }
-}
-
-
-
-public void InsertTail(int value)
-{
-    var newNode = new Node { Value = value };
-
-    if (head == null)
-    {
-        head = newNode;
-        return;
-    }
-
-    var current = head;
-    while (current.Next != null)
-    {
-        current = current.Next;
-    }
-    current.Next = newNode;
-}
-
-
-
-
-
-
-public void RemoveTail()
-{
-    if (head == null) return;
-
-    if (head.Next == null)
-    {
-        head = null;
-        return;
-    }
-
-    var current = head;
-    while (current.Next.Next != null)
-    {
-        current = current.Next;
-    }
-    current.Next = null;
-}
-
-
-
-
-
-public void Remove(int value)
-{
-    if (head == null) return;
-
-    if (head.Value == value)
-    {
-        head = head.Next;
-        return;
-    }
-
-    var current = head;
-    while (current.Next != null)
-    {
-        if (current.Next.Value == value)
-        {
-            current.Next = current.Next.Next;
-            return;
-        }
-        current = current.Next;
-    }
-}
-
-
-
-
-
-
-
-
-public void Replace(int oldValue, int newValue)
-{
-    var current = head;
-    while (current != null)
-    {
-        if (current.Value == oldValue)
-        {
-            current.Value = newValue;
-        }
-        current = current.Next;
-    }
 }
 
 
